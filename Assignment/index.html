@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Data</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Country Data</h1>
+    <input type="text" id="searchInput" placeholder="Search for a country">
+    <button onclick="searchCountry()">Search</button>
+    <div id="countryList"></div>
+
+    <script>
+        // JavaScript code to fetch and display country data
+        async function fetchCountryData() {
+            try {
+                const response = await fetch('https://codejudge-question-artifacts-dev.s3.amazonaws.com/q-1709/data.json');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function displayCountries() {
+            const countryData = await fetchCountryData();
+            const countryList = document.getElementById('countryList');
+            countryList.innerHTML = ''; // Clear previous results
+
+            if (countryData) {
+                countryData.forEach(country => {
+                    const countryCard = document.createElement('div');
+                    countryCard.textContent = country.name;
+                    countryList.appendChild(countryCard);
+                });
+            }
+        }
+
+        function searchCountry() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.toLowerCase();
+            const countryList = document.getElementById('countryList');
+            countryList.innerHTML = ''; // Clear previous results
+
+            fetchCountryData()
+                .then(data => {
+                    const matchingCountries = data.filter(country => country.name.toLowerCase() === searchTerm);
+                    if (matchingCountries.length === 0) {
+                        const noResultMessage = document.createElement('p');
+                        noResultMessage.textContent = 'No country found!';
+                        countryList.appendChild(noResultMessage);
+                    } else {
+                        matchingCountries.forEach(country => {
+                            const countryCard = document.createElement('div');
+                            countryCard.textContent = country.name;
+                            countryList.appendChild(countryCard);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error searching country:', error);
+                });
+        }
+
+        // Initial display of all countries
+        displayCountries();
+    </script>
+</body>
+</html>
